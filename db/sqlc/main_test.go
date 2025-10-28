@@ -12,13 +12,15 @@ import (
 var testQueries *Queries
 var testDB *sql.DB
 
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable"
-)
+const dbDriver = "postgres"
+var dbSource = os.Getenv("DB_SOURCE")
 
 func TestMain(m *testing.M) {
 	var err error
+	
+	if dbSource == "" {
+		dbSource = "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable"
+	}
 
 	testDB, err = sql.Open(dbDriver, dbSource)
 	if err != nil {

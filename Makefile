@@ -1,13 +1,12 @@
-DB_USER = postgres
-DB_PASSWORD = secret
-DB_NAME = simple_bank
-DB_HOST = localhost
-DB_PORT ?= 5433  # Default for mylocal;
-
-DB_URL = postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+# Default local configuration
+DB_PORT ?= 5433
+DB_USER ?= postgres
+DB_PASSWORD ?= secret
+DB_NAME ?= simple_bank
+DB_URL = postgresql://$(DB_USER):$(DB_PASSWORD)@localhost:$(DB_PORT)/$(DB_NAME)?sslmode=disable
 
 postgres:
-	docker run --name postgres -e POSTGRES_PASSWORD=$(DB_PASSWORD) -p 5433:5432 -d postgres
+	docker run --name postgres -e POSTGRES_PASSWORD=$(DB_PASSWORD) -p $(DB_PORT):5432 -d postgres
 
 createdb:
 	docker exec -it postgres createdb --username=$(DB_USER) --owner=$(DB_USER) $(DB_NAME)
@@ -27,4 +26,4 @@ sqlc:
 test:
 	go test -v -cover ./...
 
-.PHONY: createdb postgres dropdb migrateup migratedown test
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test
