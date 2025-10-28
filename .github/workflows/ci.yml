@@ -19,6 +19,7 @@ jobs:
       postgres:
         image: postgres
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: secret
           POSTGRES_DB: simple_bank
         ports:
@@ -28,6 +29,14 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+    env:
+      DB_USER: postgres
+      DB_PASSWORD: secret
+      DB_NAME: simple_bank
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_URL: postgresql://postgres:secret@localhost:5432/simple_bank?sslmode=disable
 
     steps:
     - name: Check out code into the Go module directory
@@ -45,7 +54,7 @@ jobs:
         which migrate
 
     - name: Run Migrations
-      run: make migrateup
+      run: DB_PORT=5432 make migrateup
 
     - name: Test
       run: make test
