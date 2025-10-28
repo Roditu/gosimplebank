@@ -24,4 +24,4 @@ jobs:
         go-version: '1.20'
 
     - name: Test
-      run: makee test
+      run: make test
