@@ -1,18 +1,18 @@
-# Default local configuration
-DB_PORT ?= 5433
-DB_USER ?= postgres
-DB_PASSWORD ?= secret
-DB_NAME ?= simple_bank
-DB_URL = postgresql://$(DB_USER):$(DB_PASSWORD)@localhost:$(DB_PORT)/$(DB_NAME)?sslmode=disable
+ifneq (,$(wildcard .env))
+	include .env
+	export $(shell sed 's/=.*//' .env)
+endif
+
+DB_URL = $(DB_SOURCE)
 
 postgres:
-	docker run --name postgres -e POSTGRES_PASSWORD=$(DB_PASSWORD) -p $(DB_PORT):5432 -d postgres
+	docker run --name postgres -e POSTGRES_PASSWORD=secret -p 5433:5432 -d postgres
 
 createdb:
-	docker exec -it postgres createdb --username=$(DB_USER) --owner=$(DB_USER) $(DB_NAME)
+	docker exec -it postgres createdb --username=postgres --owner=postgres simple_bank
 
 dropdb:
-	docker exec -it postgres dropdb --username=$(DB_USER) $(DB_NAME)
+	docker exec -it postgres dropdb --username=postgres simple_bank
 
 migrateup:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up

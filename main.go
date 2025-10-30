@@ -3,25 +3,20 @@ package main
 import (
 	"database/sql"
 	"log"
-	"os"
 
 	_ "github.com/lib/pq"
 	"github.com/roditu/gosimplebank/api"
 	db "github.com/roditu/gosimplebank/db/sqlc"
+	"github.com/roditu/gosimplebank/util"
 )
-
-const (
-	dbDriver = "postgres"
-	serverAddress = "0.0.0.0:8080"
-)
-var dbSource = os.Getenv("DB_SOURCE")
 
 func main() {
-	if dbSource == "" {
-		dbSource = "postgresql://postgres:secret@localhost:5433/simple_bank?sslmode=disable"
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
 	}
 
-	conn, err := sql.Open(dbDriver, dbSource)
+	conn, err := sql.Open(config.DBDRiver, config.DBSource)
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
@@ -29,7 +24,7 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
-	err = server.Start(serverAddress)
+	err = server.Start(config.ServerAddress)
 	if err != nil {
 		log.Fatal("cannot start server: ", err)
 	}
